@@ -1,42 +1,42 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import { useImmer } from "use-immer";
 
-export function use2dCoord({ x1, y1, x2, y2, xSnap, ySnap }) {
-  const [coord, updateCoord] = useImmer({ x1, y1, x2, y2 });
-  const actions = useMemo(
-    () => {
-      const snapX = x => Math.round(x / xSnap) * xSnap;
-      const snapY = y => Math.round(y / ySnap) * ySnap;
-      return {
-        set: ({ x1, y1, x2, y2 }) =>
-          updateCoord(draft => {
-            draft.x1 = snapX(x1);
-            draft.y1 = snapY(y1);
-            draft.x2 = snapX(x2);
-            draft.y2 = snapY(y2);
-          }),
-        setOrigin: ({ x, y }) =>
-          updateCoord(draft => {
-            draft.x1 = snapX(x);
-            draft.y1 = snapY(y);
-          }),
-        setCursor: ({ x, y }) =>
-          updateCoord(draft => {
-            draft.x2 = snapX(x);
-            draft.y2 = snapY(y);
-          }),
-        clear: () => {
-          updateCoord(draft => {
-            draft.x1 = null;
-            draft.y1 = null;
-            draft.x2 = null;
-            draft.y2 = null;
-          });
-        }
-      };
-    },
-    [xSnap, ySnap]
-  );
+export function use2dCoord() {
+  const [coord, updateCoord] = useImmer({
+    x1: null,
+    y1: null,
+    x2: null,
+    y2: null
+  });
+  const actions = useMemo(() => {
+    return {
+      set: ({ x1, y1, x2, y2 }) =>
+        updateCoord(draft => {
+          draft.x1 = x1;
+          draft.y1 = y1;
+          draft.x2 = x2;
+          draft.y2 = y2;
+        }),
+      setOrigin: ({ x, y }) =>
+        updateCoord(draft => {
+          draft.x1 = x;
+          draft.y1 = y;
+        }),
+      setCursor: ({ x, y }) =>
+        updateCoord(draft => {
+          draft.x2 = x;
+          draft.y2 = y;
+        }),
+      clear: () => {
+        updateCoord(draft => {
+          draft.x1 = null;
+          draft.y1 = null;
+          draft.x2 = null;
+          draft.y2 = null;
+        });
+      }
+    };
+  }, []);
   return [coord, actions];
 }
 
@@ -57,6 +57,6 @@ export const MouseTracer = ({ down, x1, y1, x2, y2 }) => (
         opacity={0.3}
       />
     )}
-    {x2 !== null && <MousePin down={down} x={x2} y={y2} />}
+    {x2 !== null && <MousePin down={x1 !== null} x={x2} y={y2} />}
   </g>
 );
